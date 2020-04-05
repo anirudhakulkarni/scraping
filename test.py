@@ -6,7 +6,6 @@ import urllib.request
 source = requests.get('http://explosm.net/comics/archive').text
 soup = BeautifulSoup(source, 'lxml')
 
-starting= soup.find('')
 #input syntx
 with open('range.txt') as f:
     lines=[i.rstrip('\n')for i in f]
@@ -19,14 +18,28 @@ monthlist=['january','february', 'march','april','may','june','july','august','s
 start_month_index=monthlist.index(start_month)
 end_month_index=monthlist.index(end_month)
 monthdiff=end_month_index-start_month_index+(end_year-start_year)*12
-for month in range (monthdiff):
-    for year in range (start_year,end_year):
+
+for year in range (start_year,end_year+1):
+    if year==start_year:
+        imindex=start_month_index
+        fmindex=11
+    elif year==end_year:
+        imindex=0
+        fmindex=end_month_index
+    else:
+        imindex=0
+        fmindex=11
+    os.makedirs(str(year))
+        
+    for month in range (imindex,fmindex+1):
+        os.makedirs(str(year)+'/'+str(monthlist[month]))
         for name in author:
-            if (month+start_month_index)%12<10:
-                print('http://explosm.net/comics/archive/'+str(year)+'/0'+str((month+start_month_index)%12+1)+'/'+str(name))
-                
-            if (month+start_month_index)%12>9:
-                print('http://explosm.net/comics/archive/'+str(year)+'/'+str((month+start_month_index)%12+1)+'/'+str(name))
+            if month>8:
+                print('http://explosm.net/comics/archive/'+str(year)+'/'+str(month+1)+'/'+str(name))
+            else:
+                print('http://explosm.net/comics/archive/'+str(year)+'/0'+str(month+1)+'/'+str(name))
+    
+            
 '''
 sourcelist = requests.get('http://explosm.net/comics/archive/2015/01/rob').text
 souplist = BeautifulSoup(source, 'lxml')
