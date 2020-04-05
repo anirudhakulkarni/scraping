@@ -6,7 +6,6 @@ import urllib.request
 source = requests.get('http://explosm.net/comics/archive').text
 soup = BeautifulSoup(source, 'lxml')
 
-starting= soup.find('')
 #input syntx
 with open('range.txt') as f:
     lines=[i.rstrip('\n')for i in f]
@@ -19,23 +18,45 @@ monthlist=['january','february', 'march','april','may','june','july','august','s
 start_month_index=monthlist.index(start_month)
 end_month_index=monthlist.index(end_month)
 monthdiff=end_month_index-start_month_index+(end_year-start_year)*12
-for month in range (monthdiff):
-    for year in range (start_year,end_year):
+
+for year in range (start_year,end_year+1):
+    if year==start_year:
+        imindex=start_month_index
+        if start_year==end_year:
+            fmindex=end_month_index
+        else:
+            fmindex=11
+    elif year==end_year:
+        imindex=0
+        fmindex=end_month_index
+    else:
+        imindex=0
+        fmindex=11
+    os.makedirs(str(year))
+        
+    for month in range (imindex,fmindex+1):
+        os.makedirs(str(year)+'/'+str(monthlist[month]))
         for name in author:
-            if (month+start_month_index)%12<10:
-                print('http://explosm.net/comics/archive/'+str(year)+'/0'+str((month+start_month_index)%12+1)+'/'+str(name))
-                
-            if (month+start_month_index)%12>9:
-                print('http://explosm.net/comics/archive/'+str(year)+'/'+str((month+start_month_index)%12+1)+'/'+str(name))
-'''
-sourcelist = requests.get('http://explosm.net/comics/archive/2015/01/rob').text
-souplist = BeautifulSoup(source, 'lxml')
-for downitem in souplist.find_all('div',{'class':'archive-list-item'}):
-    id=downitem.a['href']
-    sourcefinal = requests.get('http://explosm.net'+str(id)).text
-    soupfinal=BeautifulSoup(sourcefinal, 'lxml')
-    image=soupfinal.find('img',{'id':'main-comic'})['src']
-    print(image)
+            if month>8:
+                spath= 'http://explosm.net/comics/archive/'+str(year)+'/'+str(month+1)+'/'+str(name)
+            else:
+                spath='http://explosm.net/comics/archive/'+str(year)+'/0'+str(month+1)+'/'+str(name)
+            sourcelist = requests.get(spath).text
+            print(spath)
+            souplist = BeautifulSoup(sourcelist, 'lxml')
+            
+            for downitem in souplist.find_all('div',{'class':'archive-list-item'}):
+                id=downitem.a['href']
+                filename=str(downitem.find('div',{'id':'comic-author'}))[24:34]
+                print(filename)
+                print(id)
+                sourcefinal = requests.get('http://explosm.net'+str(id)).text
+                soupfinal=BeautifulSoup(sourcefinal, 'lxml')
+                image=soupfinal.find('img',{'id':'main-comic'})['src']
+                image='https://'+image[2:-9]
+                imagefile=open(str(year)+'/'+str(monthlist[month])+'/'+filename+'-'+ name+'.jpeg','wb')
+                imagefile.write(urllib.request.urlopen(image).read())
+                imagefile.close()
 '''
 #output
 # for i in outputfile:
@@ -44,3 +65,4 @@ for downitem in souplist.find_all('div',{'class':'archive-list-item'}):
 imagefile=open('name'+'.jpeg','wb')
 #imagefile.write(urllib.request.urlopen('http://files.explosm.net/comics/Kris/fightcloud.png?t=C1CB9B').read())
 imagefile.close()
+'''
